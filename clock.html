@@ -1,91 +1,251 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Simple Clock with Lines</title>
-  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-  <style>
-    #clock {
-      position: relative;
-      width: 400px;
-      height: 400px;
-      margin: 50px auto;  
-      font-size: 24px;
-      border:solid
-    }
-    .hour-line, .minute-line, .second-line {
-      position: absolute;
-      transform-origin: 50% 100%;
-      padding-bottom:15%;
-      left:50%;
-    }
-    .hour-line {
-      width: 6px;
-      height: 60px;
-      top: 90px;
-    }
-    .minute-line {
-      width: 4px;
-      height: 80px;
-      top: 40px;
-    }
-    .second-line {
-      width: 2px;
-      height: 100px;
-      top: 25px;
-    }
-    
-  </style>
+<meta charset="UTF-8">
+<title>Neon Rain Time Console</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+:root{
+  --pink:#ff2fdc;
+  --cyan:#00fff0;
+  --purple:#7a5cff;
+  --bg:#05060b;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background: var(--bg);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+/* ===== Rain Background ===== */
+canvas#rain{
+  position:fixed;
+  inset:0;
+  z-index:0;
+}
+
+/* ===== Center Console ===== */
+#console{
+  position:relative;
+  width:420px;
+  height:420px;
+  margin:auto;
+  top:50%;
+  transform:translateY(-50%);
+  border-radius:22px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
+  backdrop-filter: blur(6px);
+  border:1px solid rgba(0,255,240,0.35);
+  box-shadow:
+    0 0 30px rgba(0,255,240,0.25),
+    0 0 80px rgba(255,47,220,0.15),
+    inset 0 0 25px rgba(0,255,240,0.12);
+  z-index:1;
+}
+
+/* Header text */
+#title{
+  position:absolute;
+  top:14px;
+  left:18px;
+  font-size:13px;
+  letter-spacing:2px;
+  color:var(--pink);
+  text-shadow:0 0 8px var(--pink);
+}
+
+#status{
+  position:absolute;
+  top:14px;
+  right:18px;
+  font-size:12px;
+  color:var(--cyan);
+  opacity:0.9;
+}
+
+/* ===== Clock Area ===== */
+#clock{
+  position:absolute;
+  inset:50px;
+}
+
+/* Center core */
+#core{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:14px;
+  height:14px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 20px var(--cyan), 0 0 40px var(--cyan);
+  z-index:5;
+}
+
+/* Pulse synced to seconds */
+.pulse{
+  animation:pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse{
+  0%{ box-shadow:0 0 10px var(--cyan), 0 0 20px var(--cyan); }
+  50%{ box-shadow:0 0 25px var(--cyan), 0 0 60px var(--cyan); }
+  100%{ box-shadow:0 0 10px var(--cyan), 0 0 20px var(--cyan); }
+}
+
+/* ===== Hands ===== */
+.hand{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform-origin: 50% 100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+  filter: drop-shadow(0 0 12px currentColor);
+}
+
+.hand::before{
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  border-radius:4px;
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor, 0 0 24px currentColor;
+}
+
+.num{
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:1px;
+}
+
+/* Sizes */
+.hour{
+  color:var(--purple);
+  height:120px;
+  transform: translate(-50%, -100%);
+}
+.hour::before{ width:6px; height:70px; }
+
+.minute{
+  color:var(--cyan);
+  height:170px;
+  transform: translate(-50%, -100%);
+}
+.minute::before{ width:4px; height:110px; }
+
+.second{
+  color:var(--pink);
+  height:200px;
+  transform: translate(-50%, -100%);
+}
+.second::before{ width:2px; height:140px; }
+
+</style>
 </head>
 <body>
 
-<div id="clock">
-  <div class="hour-line" id="hourLine">
-    <div class="clock_number">00</div>
-    <div class="clock_number">00</div>
-    <div class="clock_number">00</div>
-  </div>
-  <div class="minute-line" id="minuteLine">
-    <div class="clock_number">00</div>
-    <div class="clock_number">00</div>
-    <div class="clock_number">00</div>
-    <div class="clock_number">00</div>
-    <div class="clock_number">00</div>
+<canvas id="rain"></canvas>
 
-  </div>
-  <div class="second-line" id="secondLine">
-    <div class="clock_number">00</div>
-    <div class="clock_number">00</div>
-    <div class="clock_number">00</div>
-    <div class="clock_number">00</div>
-    <div class="clock_number">00</div>
-    <div class="clock_number">00</div>
-    
+<div id="console">
+  <div id="title">NEURAL TIME INTERFACE</div>
+  <div id="status">SYNC: STABLE</div>
+
+  <div id="clock">
+    <div id="core" class="pulse"></div>
+
+    <div class="hand hour" id="hourHand">
+      <div class="num">00</div><div class="num">00</div><div class="num">00</div>
+    </div>
+
+    <div class="hand minute" id="minuteHand">
+      <div class="num">00</div><div class="num">00</div><div class="num">00</div><div class="num">00</div>
+    </div>
+
+    <div class="hand second" id="secondHand">
+      <div class="num">00</div><div class="num">00</div><div class="num">00</div><div class="num">00</div><div class="num">00</div>
+    </div>
   </div>
 </div>
 
 <script>
-  function updateClock() {
-    const now = new Date();
-    const hours = now.getHours() || 12;
-    const minutes = now.getMinutes();
-    const seconds = now.getSeconds();
+/* ===== Rain Effect ===== */
+const canvas = document.getElementById("rain");
+const ctx = canvas.getContext("2d");
+function resize(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
 
-    // Calculate angles for hour, minute, and second hands
-    const hourAngle = (hours % 12) * 30 + minutes * 0.5;
-    const minuteAngle = minutes * 6;
-    const secondAngle = seconds * 6;
+const drops = Array.from({length: 200}, () => ({
+  x: Math.random()*canvas.width,
+  y: Math.random()*canvas.height,
+  len: 10 + Math.random()*20,
+  speed: 4 + Math.random()*6
+}));
 
-    // Rotate the lines based on the calculated angles
-    $("#hourLine").css("transform",`rotate(${hourAngle}deg)`).children(".clock_number").html(hours).css("transform",`rotate(${-hourAngle}deg)`)
-    $("#minuteLine").css("transform",`rotate(${minuteAngle}deg)`).children(".clock_number").html(minutes).css("transform",`rotate(${-minuteAngle}deg)`)
-    $("#secondLine").css("transform",`rotate(${secondAngle}deg)`).children(".clock_number").html(seconds).css("transform",`rotate(${-secondAngle}deg)`)
+function drawRain(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle = "rgba(0,255,240,0.25)";
+  ctx.lineWidth = 1;
+  for(const d of drops){
+    ctx.beginPath();
+    ctx.moveTo(d.x, d.y);
+    ctx.lineTo(d.x, d.y + d.len);
+    ctx.stroke();
+    d.y += d.speed;
+    if(d.y > canvas.height) d.y = -d.len;
   }
+  requestAnimationFrame(drawRain);
+}
+drawRain();
 
-  // Update the clock every second
-  setInterval(updateClock, 1000);
+/* ===== Clock Logic ===== */
+function updateClock(){
+  const now = new Date();
+  const h = now.getHours()%12 || 12;
+  const m = now.getMinutes();
+  const s = now.getSeconds();
+  const ms = now.getMilliseconds();
 
-  // Initial call to display the clock immediately
-  updateClock();
+  const sp = s + ms/1000;
+  const mp = m + sp/60;
+  const hp = h + mp/60;
+
+  const hA = hp * 30;
+  const mA = mp * 6;
+  const sA = sp * 6;
+
+  $("#hourHand")
+    .css("transform", `translate(-50%, -100%) rotate(${hA}deg)`)
+    .find(".num").text(String(h).padStart(2,"0"))
+    .css("transform", `rotate(${-hA}deg)`);
+
+  $("#minuteHand")
+    .css("transform", `translate(-50%, -100%) rotate(${mA}deg)`)
+    .find(".num").text(String(m).padStart(2,"0"))
+    .css("transform", `rotate(${-mA}deg)`);
+
+  $("#secondHand")
+    .css("transform", `translate(-50%, -100%) rotate(${sA}deg)`)
+    .find(".num").text(String(s).padStart(2,"0"))
+    .css("transform", `rotate(${-sA}deg)`);
+
+  requestAnimationFrame(updateClock);
+}
+updateClock();
 </script>
 
 </body>
